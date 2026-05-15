@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СтройПром · Операционный центр продаж</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f4f4f1;
+  --paper:#ffffff;
+  --ink:#0f172a;
+  --ink-2:#1e293b;
+  --ink-3:#475569;
+  --ink-4:#64748b;
+  --line:#0f172a;
+  --hair:#e2e1dc;
+  --hair-2:#d4d3cc;
+  --amber:#b45309;
+  --amber-bg:#fef3c7;
+  --amber-light:#fef9e7;
+  --red:#991b1b;
+  --red-bg:#fee2e2;
+  --red-light:#fef2f2;
+  --green:#14532d;
+  --green-bg:#dcfce7;
+  --green-light:#f0fdf4;
+  --blue:#1e3a5f;
+  --blue-bg:#dbeafe;
+  --steel:#334155;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Manrope',-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  font-size:13px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  font-weight:400;
+}
+.mono{font-family:'JetBrains Mono',monospace;font-feature-settings:"tnum","ss01"}
+
+.hdr{
+  background:linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  color:#f4f4f1;
+  padding:14px 24px 0;
+  position:relative;
+}
+.hdr::after{
+  content:"";
+  position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg, transparent, #475569, transparent);
+}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{
+  width:36px;height:36px;
+  background:#b45309;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono';font-weight:700;font-size:18px;color:#0f172a;
+  border-radius:2px;
+  letter-spacing:-1px;
+}
+.brand-text{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#94a3b8;font-weight:600;margin-bottom:2px}
+.brand-title{font-size:18px;font-weight:700;letter-spacing:-0.01em}
+.brand-title span{color:#fbbf24}
+.live-wrap{text-align:right;font-size:10px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;font-weight:500}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;margin-right:5px;animation:pulse 2s infinite;box-shadow:0 0 6px #22c55e}
+.last-upd{color:#cbd5e1;margin-top:3px;font-family:'JetBrains Mono';font-size:11px;letter-spacing:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.nav{display:flex;gap:0;overflow-x:auto;border-bottom:1px solid transparent}
+.nav button{
+  padding:9px 18px;
+  border:none;
+  font-size:11px;font-weight:600;
+  cursor:pointer;
+  font-family:inherit;
+  transition:all .15s;
+  background:transparent;
+  color:#94a3b8;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  position:relative;
+  white-space:nowrap;
+}
+.nav button:hover{color:#f4f4f1}
+.nav .on{color:#fbbf24}
+.nav .on::after{
+  content:"";
+  position:absolute;left:18px;right:18px;bottom:-1px;height:2px;
+  background:#fbbf24;z-index:2;
+}
+
+.fbar{padding:11px 24px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--hair);background:var(--paper)}
+.fbar label{font-size:9px;color:var(--ink-4);font-weight:700;text-transform:uppercase;letter-spacing:1.2px}
+.fbar select,.fbar input{
+  padding:6px 11px;
+  border:1px solid var(--hair-2);
+  font-size:12px;
+  font-family:inherit;
+  background:#fff;
+  color:var(--ink);
+  border-radius:2px;
+}
+.fbar input[type=text]{width:200px}
+.per-btn{
+  padding:5px 11px;
+  border:1px solid var(--hair-2);
+  font-size:10px;
+  cursor:pointer;
+  font-family:inherit;
+  background:#fff;
+  color:var(--ink-3);
+  letter-spacing:.5px;
+  font-weight:600;
+  border-radius:2px;
+  text-transform:uppercase;
+  transition:all .15s;
+}
+.per-btn:hover{border-color:var(--ink-3)}
+.per-btn.on{background:var(--ink);color:#fbbf24;border-color:var(--ink)}
+.export-btn{
+  margin-left:auto;
+  padding:6px 14px;
+  border:1px solid var(--green);
+  background:var(--green-light);
+  color:var(--green);
+  font-size:10px;cursor:pointer;font-family:inherit;
+  font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;
+  border-radius:2px;
+  transition:all .15s;
+}
+.export-btn:hover{background:var(--green);color:#fff}
+
+.page{padding:18px 24px 50px;display:none}
+.page.show{display:block}
+
+/* SUMMARY VIEW */
+.banner{
+  background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color:#f4f4f1;
+  padding:24px 28px;
+  margin-bottom:18px;
+  position:relative;
+  overflow:hidden;
+}
+.banner::before{
+  content:"";
+  position:absolute;
+  top:0;right:0;
+  width:240px;height:240px;
+  background:radial-gradient(circle, #b4530933 0%, transparent 70%);
+}
+.banner-row{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:18px;position:relative;z-index:1}
+.banner-l{display:flex;flex-direction:column;gap:6px}
+.banner-eyebrow{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#94a3b8;font-weight:600}
+.banner-h{font-size:34px;font-weight:800;letter-spacing:-0.02em;line-height:1}
+.banner-h span{color:#fbbf24}
+.banner-sub{font-size:13px;color:#cbd5e1;margin-top:4px;font-weight:400}
+.banner-r{display:flex;gap:28px;flex-wrap:wrap}
+.bstat{text-align:right}
+.bstat-l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;font-weight:600;margin-bottom:3px}
+.bstat-v{font-family:'JetBrains Mono';font-size:24px;font-weight:600;letter-spacing:-0.02em;color:#fbbf24}
+
+.kgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;margin-bottom:18px;background:var(--paper);border:1px solid var(--hair)}
+.kpi{
+  padding:18px 20px;
+  border-right:1px solid var(--hair);
+  position:relative;
+}
+.kpi:last-child{border-right:none}
+.kpi-l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-4);margin-bottom:5px}
+.kpi-v{font-family:'JetBrains Mono';font-size:26px;font-weight:600;letter-spacing:-0.02em;color:var(--ink);line-height:1.1}
+.kpi-v.green{color:var(--green)}
+.kpi-v.red{color:var(--red)}
+.kpi-v.amber{color:var(--amber)}
+.kpi-s{font-size:11px;color:var(--ink-4);margin-top:5px;font-weight:500}
+.kpi-trend{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 6px;border-radius:2px;margin-top:5px;font-family:'JetBrains Mono'}
+.kpi-trend.up{background:var(--green-bg);color:var(--green)}
+.kpi-trend.down{background:var(--red-bg);color:var(--red)}
+
+/* LOSS BANNER */
+.loss-block{
+  background:var(--paper);
+  border:1px solid var(--hair);
+  padding:22px 24px;
+  margin-bottom:18px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:32px;
+  align-items:center;
+}
+.loss-side{
+  border-right:1px solid var(--hair);
+  padding-right:32px;
+}
+.loss-side-l{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:5px}
+.loss-side-v{font-family:'JetBrains Mono';font-size:42px;font-weight:700;letter-spacing:-0.02em;color:var(--red);line-height:1}
+.loss-side-s{font-size:11px;color:var(--ink-3);margin-top:6px;line-height:1.4;max-width:200px}
+.loss-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.loss-item{padding:0 12px;border-left:2px solid var(--amber)}
+.loss-item-l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-4);font-weight:700;margin-bottom:4px}
+.loss-item-v{font-family:'JetBrains Mono';font-size:18px;font-weight:600;color:var(--amber);margin-bottom:4px}
+.loss-item-s{font-size:11px;color:var(--ink-3);line-height:1.4}
+
+.two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:18px}
+@media(max-width:920px){.two-col{grid-template-columns:1fr}}
+.card{background:var(--paper);border:1px solid var(--hair)}
+.card-h{padding:13px 18px;border-bottom:1px solid var(--hair);display:flex;justify-content:space-between;align-items:center}
+.card-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink)}
+.card-meta{font-size:10px;color:var(--ink-4);font-weight:500}
+.card-b{padding:14px 18px}
+
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{
+  padding:9px 8px;
+  font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;
+  color:var(--ink-4);
+  background:#fafaf6;
+  cursor:pointer;user-select:none;
+  white-space:nowrap;
+  border-bottom:1px solid var(--hair-2);
+  border-top:1px solid var(--hair);
+  text-align:left;
+}
+th.right{text-align:right}
+th:hover{color:var(--ink)}
+td{padding:9px 8px;border-bottom:1px solid var(--hair);color:var(--ink-2)}
+td.right{text-align:right}
+td.num{font-family:'JetBrains Mono';font-weight:500}
+tbody tr:hover{background:#fafaf6}
+tfoot td{font-weight:700;background:#fafaf6;border-top:2px solid var(--ink);border-bottom:none;color:var(--ink);padding-top:11px}
+.pill{display:inline-block;padding:2px 7px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:.5px;font-family:'JetBrains Mono'}
+.pill.a{background:var(--green-bg);color:var(--green)}
+.pill.b{background:var(--amber-bg);color:var(--amber)}
+.pill.c{background:#f1f5f9;color:var(--ink-3)}
+.pill.red{background:var(--red-bg);color:var(--red)}
+.pill.green{background:var(--green-bg);color:var(--green)}
+
+.alrt{
+  padding:10px 14px;
+  font-size:12px;
+  display:flex;align-items:flex-start;gap:10px;
+  border-bottom:1px solid var(--hair);
+  cursor:default;
+}
+.alrt:last-child{border-bottom:none}
+.alrt:hover{background:#fafaf6}
+.alrt-icon{
+  font-family:'JetBrains Mono';font-weight:700;font-size:10px;
+  padding:2px 6px;border-radius:2px;flex-shrink:0;margin-top:1px;
+}
+.alrt.r .alrt-icon{background:var(--red-bg);color:var(--red)}
+.alrt.y .alrt-icon{background:var(--amber-bg);color:var(--amber)}
+.alrt-msg{flex:1;line-height:1.4}
+.alrt-msg b{color:var(--ink)}
+
+/* MONTH CHART */
+.chart-wrap{padding:6px 4px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:160px;margin:14px 4px 8px;padding-bottom:6px;border-bottom:1px solid var(--hair-2)}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;height:100%;justify-content:flex-end}
+.bar{width:100%;background:linear-gradient(180deg, var(--ink-2) 0%, var(--ink) 100%);position:relative;min-height:2px;transition:all .25s}
+.bar.low{background:linear-gradient(180deg, #b45309 0%, #92400e 100%)}
+.bar.high{background:linear-gradient(180deg, #14532d 0%, #052e16 100%)}
+.bar:hover{filter:brightness(1.2)}
+.bar-val{font-family:'JetBrains Mono';font-size:9px;color:var(--ink-3);position:absolute;top:-14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-weight:600}
+.bar-lbl{font-size:10px;color:var(--ink-4);font-weight:600}
+.avg-line{position:absolute;left:4px;right:4px;border-top:1px dashed var(--ink-3);pointer-events:none;z-index:1}
+.avg-lbl{position:absolute;right:6px;font-size:9px;color:var(--ink-3);background:var(--paper);padding:0 4px;font-family:'JetBrains Mono';font-weight:600;top:-7px}
+
+.chart-cap{font-size:10px;color:var(--ink-4);text-align:center;margin-top:4px;font-style:italic}
+
+/* CATEGORY BREAKDOWN */
+.cat-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--hair);font-size:12px}
+.cat-row:last-child{border-bottom:none}
+.cat-name{flex:0 0 145px;font-weight:600;color:var(--ink-2)}
+.cat-bar-wrap{flex:1;height:18px;background:#f1f5f9;position:relative;border-radius:1px;overflow:hidden}
+.cat-bar{height:100%;background:linear-gradient(90deg, var(--ink-2), var(--ink));position:relative}
+.cat-bar-lbl{position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:10px;color:#fff;font-weight:600;font-family:'JetBrains Mono';mix-blend-mode:difference}
+.cat-val{flex:0 0 95px;text-align:right;font-family:'JetBrains Mono';font-size:12px;font-weight:600;color:var(--ink)}
+.cat-pct{flex:0 0 50px;text-align:right;font-size:11px;color:var(--ink-4);font-family:'JetBrains Mono'}
+
+/* SKU DETAIL */
+.sku-h{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid var(--hair-2);margin-bottom:18px}
+.sku-tit{font-size:22px;font-weight:700;letter-spacing:-0.01em}
+.sku-sub{font-size:12px;color:var(--ink-4);margin-top:3px}
+.sku-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--hair);background:var(--paper)}
+.sku-blk{padding:16px 18px;border-right:1px solid var(--hair)}
+.sku-blk:last-child{border-right:none}
+.sku-blk-t{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;color:var(--ink-4);margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid var(--hair)}
+.sku-r{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}
+.sku-r .l{color:var(--ink-4)}
+.sku-r .v{font-weight:600;color:var(--ink);font-family:'JetBrains Mono'}
+.sku-r .v.red{color:var(--red)}
+.sku-r .v.green{color:var(--green)}
+.sku-r .v.amber{color:var(--amber)}
+
+.ftr{padding:16px 24px;text-align:center;font-size:9px;color:var(--ink-4);letter-spacing:2px;text-transform:uppercase;border-top:1px solid var(--hair);background:var(--paper);font-weight:600}
+.ftr span{color:var(--amber);font-weight:700}
+
+@media(max-width:760px){
+  .banner-h{font-size:24px}
+  .loss-block{grid-template-columns:1fr;gap:18px}
+  .loss-side{border-right:none;border-bottom:1px solid var(--hair);padding-right:0;padding-bottom:18px}
+  .loss-grid{grid-template-columns:1fr}
+  .sku-grid{grid-template-columns:1fr}
+  .sku-blk{border-right:none;border-bottom:1px solid var(--hair)}
+}
+
+.search-input::placeholder{color:#b5b3a8;font-style:italic}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="brand">
+      <div class="brand-mark">СП</div>
+      <div>
+        <div class="brand-text">СтройПром · 2024</div>
+        <div class="brand-title">Операционный центр <span>продаж</span></div>
+      </div>
+    </div>
+    <div class="live-wrap">
+      <span class="live-dot"></span>Живые данные
+      <div class="last-upd" id="last-upd">15.12.2024 · 18:42</div>
+    </div>
+  </div>
+  <div class="nav" id="nav"></div>
+</div>
+
+<div class="fbar" id="fbar"></div>
+
+<div class="page" id="p0"></div>
+<div class="page" id="p1"></div>
+<div class="page" id="p2"></div>
+<div class="page" id="p3"></div>
+
+<div class="ftr">СтройПром · Оптовая торговля промышленным оборудованием · Демонстрационный дашборд · <span>Вилео</span></div>
+
+<script>
+const TXNS = [{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Дрели электрические","qty":3,"price":4916,"rev":14748,"cost":8568,"profit":6180,"margin":41.9,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Дрели электрические","qty":27,"price":4763,"rev":128601,"cost":76086,"profit":52515,"margin":40.8,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Перфораторы","qty":26,"price":8432,"rev":219232,"cost":132184,"profit":87048,"margin":39.7,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Перфораторы","qty":26,"price":8364,"rev":217464,"cost":129870,"profit":87594,"margin":40.3,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Перфораторы","qty":21,"price":8157,"rev":171297,"cost":109326,"profit":61971,"margin":36.2,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":21,"price":3448,"rev":72408,"cost":43554,"profit":28854,"margin":39.8,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":31,"price":3489,"rev":108159,"cost":63426,"profit":44733,"margin":41.4,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":7,"price":5138,"rev":35966,"cost":21637,"profit":14329,"margin":39.8,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":13,"price":5288,"rev":68744,"cost":40794,"profit":27950,"margin":40.7,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":27,"price":5319,"rev":143613,"cost":81999,"profit":61614,"margin":42.9,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":4,"price":14107,"rev":56428,"cost":33824,"profit":22604,"margin":40.1,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":31,"price":15046,"rev":466426,"cost":266693,"profit":199733,"margin":42.8,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":9,"price":14159,"rev":127431,"cost":77112,"profit":50319,"margin":39.5,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":34,"price":14354,"rev":488036,"cost":290802,"profit":197234,"margin":40.4,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":8,"price":627,"rev":5016,"cost":2976,"profit":2040,"margin":40.7,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":19,"price":656,"rev":12464,"cost":7201,"profit":5263,"margin":42.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"СИЗ","prod":"Защитные маски сварщика","qty":26,"price":1230,"rev":31980,"cost":17160,"profit":14820,"margin":46.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"СИЗ","prod":"Защитные маски сварщика","qty":26,"price":1140,"rev":29640,"cost":17134,"profit":12506,"margin":42.2,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":15,"price":186,"rev":2790,"cost":1350,"profit":1440,"margin":51.6,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":31,"price":188,"rev":5828,"cost":2852,"profit":2976,"margin":51.1,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"СИЗ","prod":"Строительные каски","qty":8,"price":438,"rev":3504,"cost":1800,"profit":1704,"margin":48.6,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"СИЗ","prod":"Строительные каски","qty":12,"price":436,"rev":5232,"cost":2712,"profit":2520,"margin":48.2,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":7,"price":2845,"rev":19915,"cost":11501,"profit":8414,"margin":42.2,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":13,"price":2920,"rev":37960,"cost":21125,"profit":16835,"margin":44.3,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":17,"price":2783,"rev":47311,"cost":27234,"profit":20077,"margin":42.4,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":26,"price":382,"rev":9932,"cost":4966,"profit":4966,"margin":50.0,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":12,"price":364,"rev":4368,"cost":2220,"profit":2148,"margin":49.2,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Уровни строительные","qty":13,"price":893,"rev":11609,"cost":6318,"profit":5291,"margin":45.6,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Уровни строительные","qty":22,"price":917,"rev":20174,"cost":10362,"profit":9812,"margin":48.6,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Уровни строительные","qty":23,"price":887,"rev":20401,"cost":11201,"profit":9200,"margin":45.1,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Уровни строительные","qty":5,"price":881,"rev":4405,"cost":2375,"profit":2030,"margin":46.1,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-01-01","m":1,"p":"2024-01","cat":"Ручной инструмент","prod":"Уровни строительные","qty":26,"price":885,"rev":23010,"cost":12428,"profit":10582,"margin":46.0,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Дрели электрические","qty":31,"price":4607,"rev":142817,"cost":90706,"profit":52111,"margin":36.5,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Дрели электрические","qty":13,"price":4640,"rev":60320,"cost":37674,"profit":22646,"margin":37.5,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Дрели электрические","qty":10,"price":4742,"rev":47420,"cost":29840,"profit":17580,"margin":37.1,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Дрели электрические","qty":19,"price":4763,"rev":90497,"cost":56620,"profit":33877,"margin":37.4,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Дрели электрические","qty":8,"price":4651,"rev":37208,"cost":22808,"profit":14400,"margin":38.7,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Перфораторы","qty":5,"price":8118,"rev":40590,"cost":25465,"profit":15125,"margin":37.3,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Перфораторы","qty":29,"price":8143,"rev":236147,"cost":145116,"profit":91031,"margin":38.5,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Перфораторы","qty":21,"price":8177,"rev":171717,"cost":109599,"profit":62118,"margin":36.2,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Перфораторы","qty":22,"price":8634,"rev":189948,"cost":112640,"profit":77308,"margin":40.7,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":14,"price":3562,"rev":49868,"cost":29708,"profit":20160,"margin":40.4,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":3,"price":3585,"rev":10755,"cost":6489,"profit":4266,"margin":39.7,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":31,"price":3515,"rev":108965,"cost":66805,"profit":42160,"margin":38.7,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":10,"price":5168,"rev":51680,"cost":31080,"profit":20600,"margin":39.9,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":34,"price":5096,"rev":173264,"cost":106420,"profit":66844,"margin":38.6,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":7,"price":5326,"rev":37282,"cost":21252,"profit":16030,"margin":43.0,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":13,"price":5297,"rev":68861,"cost":41158,"profit":27703,"margin":40.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":23,"price":14978,"rev":344494,"cost":194626,"profit":149868,"margin":43.5,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":10,"price":14850,"rev":148500,"cost":87270,"profit":61230,"margin":41.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":30,"price":620,"rev":18600,"cost":11310,"profit":7290,"margin":39.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":20,"price":641,"rev":12820,"cost":7800,"profit":5020,"margin":39.2,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":12,"price":662,"rev":7944,"cost":4608,"profit":3336,"margin":42.0,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"СИЗ","prod":"Защитные маски сварщика","qty":16,"price":1244,"rev":19904,"cost":10704,"profit":9200,"margin":46.2,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"СИЗ","prod":"Защитные маски сварщика","qty":13,"price":1228,"rev":15964,"cost":8359,"profit":7605,"margin":47.6,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"СИЗ","prod":"Защитные маски сварщика","qty":15,"price":1159,"rev":17385,"cost":9870,"profit":7515,"margin":43.2,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":11,"price":186,"rev":2046,"cost":990,"profit":1056,"margin":51.6,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":13,"price":171,"rev":2223,"cost":1144,"profit":1079,"margin":48.5,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":23,"price":183,"rev":4209,"cost":2047,"profit":2162,"margin":51.4,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"СИЗ","prod":"Строительные каски","qty":14,"price":406,"rev":5684,"cost":3164,"profit":2520,"margin":44.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"СИЗ","prod":"Строительные каски","qty":21,"price":430,"rev":9030,"cost":4578,"profit":4452,"margin":49.3,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":15,"price":2672,"rev":40080,"cost":23910,"profit":16170,"margin":40.3,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":23,"price":2781,"rev":63963,"cost":37789,"profit":26174,"margin":40.9,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":17,"price":2802,"rev":47634,"cost":27472,"profit":20162,"margin":42.3,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":25,"price":386,"rev":9650,"cost":4725,"profit":4925,"margin":51.0,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":21,"price":382,"rev":8022,"cost":3864,"profit":4158,"margin":51.8,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":26,"price":378,"rev":9828,"cost":4992,"profit":4836,"margin":49.2,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Ручной инструмент","prod":"Уровни строительные","qty":16,"price":891,"rev":14256,"cost":7744,"profit":6512,"margin":45.7,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-02-01","m":2,"p":"2024-02","cat":"Ручной инструмент","prod":"Уровни строительные","qty":15,"price":865,"rev":12975,"cost":7065,"profit":5910,"margin":45.5,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Дрели электрические","qty":32,"price":4759,"rev":152288,"cost":93536,"profit":58752,"margin":38.6,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Дрели электрические","qty":26,"price":4677,"rev":121602,"cost":76102,"profit":45500,"margin":37.4,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Перфораторы","qty":19,"price":8225,"rev":156275,"cost":99560,"profit":56715,"margin":36.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Перфораторы","qty":12,"price":8463,"rev":101556,"cost":62304,"profit":39252,"margin":38.7,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Перфораторы","qty":34,"price":8596,"rev":292264,"cost":175678,"profit":116586,"margin":39.9,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Перфораторы","qty":13,"price":8707,"rev":113191,"cost":66196,"profit":46995,"margin":41.5,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Перфораторы","qty":39,"price":8487,"rev":330993,"cost":195780,"profit":135213,"margin":40.9,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":24,"price":3535,"rev":84840,"cost":50520,"profit":34320,"margin":40.5,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":18,"price":3443,"rev":61974,"cost":37584,"profit":24390,"margin":39.4,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":36,"price":3560,"rev":128160,"cost":76824,"profit":51336,"margin":40.1,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":39,"price":3422,"rev":133458,"cost":81159,"profit":52299,"margin":39.2,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":32,"price":5054,"rev":161728,"cost":98816,"profit":62912,"margin":38.9,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":16,"price":5377,"rev":86032,"cost":50848,"profit":35184,"margin":40.9,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":46,"price":5233,"rev":240718,"cost":138552,"profit":102166,"margin":42.4,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":7,"price":14152,"rev":99064,"cost":60270,"profit":38794,"margin":39.2,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":20,"price":14865,"rev":297300,"cost":177460,"profit":119840,"margin":40.3,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":37,"price":13851,"rev":512487,"cost":330632,"profit":181855,"margin":35.5,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":18,"price":630,"rev":11340,"cost":6642,"profit":4698,"margin":41.4,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":40,"price":679,"rev":27160,"cost":15160,"profit":12000,"margin":44.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Защитные маски сварщика","qty":23,"price":1153,"rev":26519,"cost":14536,"profit":11983,"margin":45.2,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Защитные маски сварщика","qty":32,"price":1253,"rev":40096,"cost":20416,"profit":19680,"margin":49.1,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Защитные маски сварщика","qty":10,"price":1224,"rev":12240,"cost":6420,"profit":5820,"margin":47.5,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":41,"price":179,"rev":7339,"cost":3649,"profit":3690,"margin":50.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":39,"price":173,"rev":6747,"cost":3588,"profit":3159,"margin":46.8,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":34,"price":174,"rev":5916,"cost":3060,"profit":2856,"margin":48.3,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":33,"price":179,"rev":5907,"cost":3003,"profit":2904,"margin":49.2,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Строительные каски","qty":35,"price":409,"rev":14315,"cost":7700,"profit":6615,"margin":46.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Строительные каски","qty":34,"price":435,"rev":14790,"cost":7344,"profit":7446,"margin":50.3,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Строительные каски","qty":21,"price":436,"rev":9156,"cost":4683,"profit":4473,"margin":48.9,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"СИЗ","prod":"Строительные каски","qty":9,"price":409,"rev":3681,"cost":1971,"profit":1710,"margin":46.5,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":31,"price":2882,"rev":89342,"cost":48391,"profit":40951,"margin":45.8,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":42,"price":2763,"rev":116046,"cost":67410,"profit":48636,"margin":41.9,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":25,"price":2857,"rev":71425,"cost":39450,"profit":31975,"margin":44.8,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":27,"price":2693,"rev":72711,"cost":43281,"profit":29430,"margin":40.5,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":39,"price":2737,"rev":106743,"cost":62751,"profit":43992,"margin":41.2,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":20,"price":370,"rev":7400,"cost":3720,"profit":3680,"margin":49.7,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":6,"price":398,"rev":2388,"cost":1146,"profit":1242,"margin":52.0,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":10,"price":394,"rev":3940,"cost":1910,"profit":2030,"margin":51.5,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Уровни строительные","qty":23,"price":929,"rev":21367,"cost":11017,"profit":10350,"margin":48.4,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-03-01","m":3,"p":"2024-03","cat":"Ручной инструмент","prod":"Уровни строительные","qty":38,"price":902,"rev":34276,"cost":17746,"profit":16530,"margin":48.2,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Дрели электрические","qty":21,"price":4617,"rev":96957,"cost":61866,"profit":35091,"margin":36.2,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Дрели электрические","qty":39,"price":4743,"rev":184977,"cost":115869,"profit":69108,"margin":37.4,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Перфораторы","qty":48,"price":8603,"rev":412944,"cost":246432,"profit":166512,"margin":40.3,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Перфораторы","qty":17,"price":8300,"rev":141100,"cost":84524,"profit":56576,"margin":40.1,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Перфораторы","qty":3,"price":8422,"rev":25266,"cost":15474,"profit":9792,"margin":38.8,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Перфораторы","qty":26,"price":8673,"rev":225498,"cost":132236,"profit":93262,"margin":41.4,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":13,"price":3616,"rev":47008,"cost":27547,"profit":19461,"margin":41.4,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":7,"price":3480,"rev":24360,"cost":14532,"profit":9828,"margin":40.3,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":38,"price":3465,"rev":131670,"cost":80712,"profit":50958,"margin":38.7,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":35,"price":3449,"rev":120715,"cost":71470,"profit":49245,"margin":40.8,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":5,"price":3453,"rev":17265,"cost":10790,"profit":6475,"margin":37.5,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":44,"price":4961,"rev":218284,"cost":138512,"profit":79772,"margin":36.5,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":18,"price":5458,"rev":98244,"cost":55584,"profit":42660,"margin":43.4,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":25,"price":5152,"rev":128800,"cost":76675,"profit":52125,"margin":40.5,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":43,"price":5090,"rev":218870,"cost":136869,"profit":82001,"margin":37.5,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":29,"price":14141,"rev":410089,"cost":246500,"profit":163589,"margin":39.9,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":43,"price":14445,"rev":621135,"cost":364081,"profit":257054,"margin":41.4,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":8,"price":631,"rev":5048,"cost":3048,"profit":2000,"margin":39.6,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":13,"price":619,"rev":8047,"cost":4979,"profit":3068,"margin":38.1,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":40,"price":618,"rev":24720,"cost":15120,"profit":9600,"margin":38.8,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":33,"price":679,"rev":22407,"cost":12639,"profit":9768,"margin":43.6,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":40,"price":663,"rev":26520,"cost":15120,"profit":11400,"margin":43.0,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Защитные маски сварщика","qty":33,"price":1163,"rev":38379,"cost":21582,"profit":16797,"margin":43.8,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Защитные маски сварщика","qty":22,"price":1233,"rev":27126,"cost":14608,"profit":12518,"margin":46.1,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Защитные маски сварщика","qty":4,"price":1174,"rev":4696,"cost":2568,"profit":2128,"margin":45.3,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":36,"price":181,"rev":6516,"cost":3204,"profit":3312,"margin":50.8,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":24,"price":187,"rev":4488,"cost":2232,"profit":2256,"margin":50.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":6,"price":177,"rev":1062,"cost":540,"profit":522,"margin":49.2,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Строительные каски","qty":5,"price":404,"rev":2020,"cost":1130,"profit":890,"margin":44.1,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Строительные каски","qty":11,"price":421,"rev":4631,"cost":2409,"profit":2222,"margin":48.0,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Строительные каски","qty":8,"price":419,"rev":3352,"cost":1808,"profit":1544,"margin":46.1,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Строительные каски","qty":27,"price":435,"rev":11745,"cost":6075,"profit":5670,"margin":48.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"СИЗ","prod":"Строительные каски","qty":44,"price":401,"rev":17644,"cost":9416,"profit":8228,"margin":46.6,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":37,"price":2934,"rev":108558,"cost":60125,"profit":48433,"margin":44.6,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":28,"price":2913,"rev":81564,"cost":43568,"profit":37996,"margin":46.6,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":15,"price":370,"rev":5550,"cost":2835,"profit":2715,"margin":48.9,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":10,"price":384,"rev":3840,"cost":1890,"profit":1950,"margin":50.8,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":18,"price":379,"rev":6822,"cost":3366,"profit":3456,"margin":50.7,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":24,"price":387,"rev":9288,"cost":4464,"profit":4824,"margin":51.9,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":32,"price":387,"rev":12384,"cost":6080,"profit":6304,"margin":50.9,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Ручной инструмент","prod":"Уровни строительные","qty":19,"price":879,"rev":16701,"cost":9044,"profit":7657,"margin":45.8,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-04-01","m":4,"p":"2024-04","cat":"Ручной инструмент","prod":"Уровни строительные","qty":34,"price":870,"rev":29580,"cost":16388,"profit":13192,"margin":44.6,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Дрели электрические","qty":27,"price":4932,"rev":133164,"cost":77031,"profit":56133,"margin":42.2,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Дрели электрические","qty":24,"price":4885,"rev":117240,"cost":70512,"profit":46728,"margin":39.9,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Дрели электрические","qty":6,"price":4708,"rev":28248,"cost":17340,"profit":10908,"margin":38.6,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Дрели электрические","qty":23,"price":4717,"rev":108491,"cost":66355,"profit":42136,"margin":38.8,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Дрели электрические","qty":39,"price":4801,"rev":187239,"cost":111540,"profit":75699,"margin":40.4,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Перфораторы","qty":25,"price":8759,"rev":218975,"cost":127250,"profit":91725,"margin":41.9,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Перфораторы","qty":32,"price":8897,"rev":284704,"cost":166176,"profit":118528,"margin":41.6,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Перфораторы","qty":24,"price":8531,"rev":204744,"cost":122064,"profit":82680,"margin":40.4,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Перфораторы","qty":27,"price":8167,"rev":220509,"cost":135513,"profit":84996,"margin":38.5,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":9,"price":3649,"rev":32841,"cost":18855,"profit":13986,"margin":42.6,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":15,"price":3436,"rev":51540,"cost":30630,"profit":20910,"margin":40.6,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":47,"price":3469,"rev":163043,"cost":98418,"profit":64625,"margin":39.6,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":36,"price":5281,"rev":190116,"cost":113832,"profit":76284,"margin":40.1,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":6,"price":5299,"rev":31794,"cost":18282,"profit":13512,"margin":42.5,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":12,"price":5450,"rev":65400,"cost":36900,"profit":28500,"margin":43.6,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":27,"price":14050,"rev":379350,"cost":229581,"profit":149769,"margin":39.5,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":6,"price":13848,"rev":83088,"cost":51678,"profit":31410,"margin":37.8,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":9,"price":14978,"rev":134802,"cost":78552,"profit":56250,"margin":41.7,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":30,"price":14898,"rev":446940,"cost":265530,"profit":181410,"margin":40.6,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":12,"price":14558,"rev":174696,"cost":106272,"profit":68424,"margin":39.2,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":28,"price":669,"rev":18732,"cost":10472,"profit":8260,"margin":44.1,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":14,"price":666,"rev":9324,"cost":5334,"profit":3990,"margin":42.8,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"СИЗ","prod":"Защитные маски сварщика","qty":32,"price":1200,"rev":38400,"cost":21344,"profit":17056,"margin":44.4,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"СИЗ","prod":"Защитные маски сварщика","qty":44,"price":1217,"rev":53548,"cost":27808,"profit":25740,"margin":48.1,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":46,"price":184,"rev":8464,"cost":4140,"profit":4324,"margin":51.1,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":9,"price":173,"rev":1557,"cost":819,"profit":738,"margin":47.4,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"СИЗ","prod":"Строительные каски","qty":42,"price":420,"rev":17640,"cost":9198,"profit":8442,"margin":47.9,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"СИЗ","prod":"Строительные каски","qty":34,"price":418,"rev":14212,"cost":7344,"profit":6868,"margin":48.3,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"СИЗ","prod":"Строительные каски","qty":10,"price":412,"rev":4120,"cost":2180,"profit":1940,"margin":47.1,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"СИЗ","prod":"Строительные каски","qty":8,"price":403,"rev":3224,"cost":1720,"profit":1504,"margin":46.7,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":46,"price":2677,"rev":123142,"cost":75624,"profit":47518,"margin":38.6,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":29,"price":2905,"rev":84245,"cost":47618,"profit":36627,"margin":43.5,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":26,"price":2828,"rev":73528,"cost":41236,"profit":32292,"margin":43.9,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":10,"price":374,"rev":3740,"cost":1910,"profit":1830,"margin":48.9,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":39,"price":393,"rev":15327,"cost":7605,"profit":7722,"margin":50.4,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":26,"price":362,"rev":9412,"cost":4862,"profit":4550,"margin":48.3,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Ручной инструмент","prod":"Уровни строительные","qty":16,"price":923,"rev":14768,"cost":7712,"profit":7056,"margin":47.8,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-05-01","m":5,"p":"2024-05","cat":"Ручной инструмент","prod":"Уровни строительные","qty":9,"price":912,"rev":8208,"cost":4248,"profit":3960,"margin":48.2,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Дрели электрические","qty":22,"price":4933,"rev":108526,"cost":64064,"profit":44462,"margin":41.0,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Дрели электрические","qty":7,"price":4884,"rev":34188,"cost":20020,"profit":14168,"margin":41.4,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Дрели электрические","qty":28,"price":4691,"rev":131348,"cost":82432,"profit":48916,"margin":37.2,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Дрели электрические","qty":38,"price":4794,"rev":182172,"cost":111302,"profit":70870,"margin":38.9,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Перфораторы","qty":16,"price":8331,"rev":133296,"cost":80192,"profit":53104,"margin":39.8,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Перфораторы","qty":10,"price":8082,"rev":80820,"cost":51760,"profit":29060,"margin":36.0,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":8,"price":3563,"rev":28504,"cost":17040,"profit":11464,"margin":40.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":27,"price":3627,"rev":97929,"cost":56943,"profit":40986,"margin":41.9,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":34,"price":3428,"rev":116552,"cost":70652,"profit":45900,"margin":39.4,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":9,"price":3577,"rev":32193,"cost":18450,"profit":13743,"margin":42.7,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":26,"price":5328,"rev":138528,"cost":79248,"profit":59280,"margin":42.8,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":38,"price":5205,"rev":197790,"cost":120688,"profit":77102,"margin":39.0,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":18,"price":4993,"rev":89874,"cost":54990,"profit":34884,"margin":38.8,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":15,"price":5435,"rev":81525,"cost":46860,"profit":34665,"margin":42.5,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":41,"price":5274,"rev":216234,"cost":130790,"profit":85444,"margin":39.5,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":32,"price":13874,"rev":443968,"cost":277440,"profit":166528,"margin":37.5,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":27,"price":14511,"rev":391797,"cost":232227,"profit":159570,"margin":40.7,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":7,"price":14710,"rev":102970,"cost":62643,"profit":40327,"margin":39.2,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":49,"price":654,"rev":32046,"cost":18963,"profit":13083,"margin":40.8,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":29,"price":657,"rev":19053,"cost":11020,"profit":8033,"margin":42.2,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":8,"price":650,"rev":5200,"cost":2984,"profit":2216,"margin":42.6,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":38,"price":651,"rev":24738,"cost":14136,"profit":10602,"margin":42.9,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":27,"price":662,"rev":17874,"cost":9990,"profit":7884,"margin":44.1,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"СИЗ","prod":"Защитные маски сварщика","qty":45,"price":1221,"rev":54945,"cost":28890,"profit":26055,"margin":47.4,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"СИЗ","prod":"Защитные маски сварщика","qty":30,"price":1150,"rev":34500,"cost":19680,"profit":14820,"margin":43.0,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":10,"price":177,"rev":1770,"cost":890,"profit":880,"margin":49.7,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":31,"price":180,"rev":5580,"cost":2697,"profit":2883,"margin":51.7,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":34,"price":174,"rev":5916,"cost":3162,"profit":2754,"margin":46.6,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"СИЗ","prod":"Строительные каски","qty":27,"price":436,"rev":11772,"cost":5994,"profit":5778,"margin":49.1,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"СИЗ","prod":"Строительные каски","qty":14,"price":429,"rev":6006,"cost":2996,"profit":3010,"margin":50.1,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":39,"price":2726,"rev":106314,"cost":61425,"profit":44889,"margin":42.2,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":28,"price":2850,"rev":79800,"cost":44996,"profit":34804,"margin":43.6,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":42,"price":2808,"rev":117936,"cost":69090,"profit":48846,"margin":41.4,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":20,"price":2675,"rev":53500,"cost":31960,"profit":21540,"margin":40.3,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":10,"price":390,"rev":3900,"cost":1870,"profit":2030,"margin":52.1,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":9,"price":397,"rev":3573,"cost":1683,"profit":1890,"margin":52.9,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":29,"price":363,"rev":10527,"cost":5510,"profit":5017,"margin":47.7,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":21,"price":362,"rev":7602,"cost":4095,"profit":3507,"margin":46.1,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Уровни строительные","qty":6,"price":871,"rev":5226,"cost":2934,"profit":2292,"margin":43.9,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Уровни строительные","qty":29,"price":900,"rev":26100,"cost":14268,"profit":11832,"margin":45.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-06-01","m":6,"p":"2024-06","cat":"Ручной инструмент","prod":"Уровни строительные","qty":41,"price":929,"rev":38089,"cost":19803,"profit":18286,"margin":48.0,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Дрели электрические","qty":10,"price":4583,"rev":45830,"cost":28860,"profit":16970,"margin":37.0,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Дрели электрические","qty":31,"price":4846,"rev":150226,"cost":87296,"profit":62930,"margin":41.9,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Дрели электрические","qty":17,"price":4766,"rev":81022,"cost":49640,"profit":31382,"margin":38.7,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Дрели электрические","qty":33,"price":5028,"rev":165924,"cost":93225,"profit":72699,"margin":43.8,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Перфораторы","qty":29,"price":8112,"rev":235248,"cost":146885,"profit":88363,"margin":37.6,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Перфораторы","qty":7,"price":8368,"rev":58576,"cost":36197,"profit":22379,"margin":38.2,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Перфораторы","qty":11,"price":8113,"rev":89243,"cost":56254,"profit":32989,"margin":37.0,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Перфораторы","qty":26,"price":8612,"rev":223912,"cost":135070,"profit":88842,"margin":39.7,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Перфораторы","qty":4,"price":8324,"rev":33296,"cost":19840,"profit":13456,"margin":40.4,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":35,"price":3590,"rev":125650,"cost":71470,"profit":54180,"margin":43.1,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":21,"price":3518,"rev":73878,"cost":44898,"profit":28980,"margin":39.2,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":26,"price":3542,"rev":92092,"cost":53586,"profit":38506,"margin":41.8,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":7,"price":3682,"rev":25774,"cost":14329,"profit":11445,"margin":44.4,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":19,"price":3457,"rev":65683,"cost":39482,"profit":26201,"margin":39.9,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":31,"price":5123,"rev":158813,"cost":93465,"profit":65348,"margin":41.1,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":16,"price":5273,"rev":84368,"cost":50464,"profit":33904,"margin":40.2,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":21,"price":5207,"rev":109347,"cost":66066,"profit":43281,"margin":39.6,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":10,"price":13872,"rev":138720,"cost":88450,"profit":50270,"margin":36.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":10,"price":14760,"rev":147600,"cost":89340,"profit":58260,"margin":39.5,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":29,"price":638,"rev":18502,"cost":10875,"profit":7627,"margin":41.2,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":27,"price":651,"rev":17577,"cost":10503,"profit":7074,"margin":40.2,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":16,"price":682,"rev":10912,"cost":6000,"profit":4912,"margin":45.0,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":11,"price":673,"rev":7403,"cost":4169,"profit":3234,"margin":43.7,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Защитные маски сварщика","qty":21,"price":1225,"rev":25725,"cost":13692,"profit":12033,"margin":46.8,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Защитные маски сварщика","qty":11,"price":1235,"rev":13585,"cost":7150,"profit":6435,"margin":47.4,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Защитные маски сварщика","qty":16,"price":1235,"rev":19760,"cost":10112,"profit":9648,"margin":48.8,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Защитные маски сварщика","qty":8,"price":1148,"rev":9184,"cost":5168,"profit":4016,"margin":43.7,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":37,"price":172,"rev":6364,"cost":3441,"profit":2923,"margin":45.9,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":10,"price":187,"rev":1870,"cost":920,"profit":950,"margin":50.8,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":30,"price":180,"rev":5400,"cost":2760,"profit":2640,"margin":48.9,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":11,"price":174,"rev":1914,"cost":1012,"profit":902,"margin":47.1,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":7,"price":176,"rev":1232,"cost":637,"profit":595,"margin":48.3,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Строительные каски","qty":32,"price":426,"rev":13632,"cost":7072,"profit":6560,"margin":48.1,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"СИЗ","prod":"Строительные каски","qty":31,"price":401,"rev":12431,"cost":6975,"profit":5456,"margin":43.9,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":35,"price":2777,"rev":97195,"cost":56455,"profit":40740,"margin":41.9,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":21,"price":2795,"rev":58695,"cost":34209,"profit":24486,"margin":41.7,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":5,"price":2704,"rev":13520,"cost":7960,"profit":5560,"margin":41.1,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":24,"price":389,"rev":9336,"cost":4656,"profit":4680,"margin":50.1,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":31,"price":382,"rev":11842,"cost":5828,"profit":6014,"margin":50.8,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":10,"price":365,"rev":3650,"cost":1880,"profit":1770,"margin":48.5,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":12,"price":392,"rev":4704,"cost":2340,"profit":2364,"margin":50.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Уровни строительные","qty":31,"price":887,"rev":27497,"cost":15221,"profit":12276,"margin":44.6,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Уровни строительные","qty":32,"price":886,"rev":28352,"cost":15136,"profit":13216,"margin":46.6,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Уровни строительные","qty":32,"price":899,"rev":28768,"cost":15680,"profit":13088,"margin":45.5,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Уровни строительные","qty":9,"price":884,"rev":7956,"cost":4419,"profit":3537,"margin":44.5,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-07-01","m":7,"p":"2024-07","cat":"Ручной инструмент","prod":"Уровни строительные","qty":4,"price":881,"rev":3524,"cost":1928,"profit":1596,"margin":45.3,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Дрели электрические","qty":36,"price":4776,"rev":171936,"cost":104724,"profit":67212,"margin":39.1,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Дрели электрические","qty":11,"price":5028,"rev":55308,"cost":31702,"profit":23606,"margin":42.7,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Дрели электрические","qty":11,"price":4656,"rev":51216,"cost":31922,"profit":19294,"margin":37.7,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Дрели электрические","qty":20,"price":4946,"rev":98920,"cost":58060,"profit":40860,"margin":41.3,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Дрели электрические","qty":21,"price":5007,"rev":105147,"cost":60228,"profit":44919,"margin":42.7,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Перфораторы","qty":35,"price":8779,"rev":307265,"cost":178850,"profit":128415,"margin":41.8,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Перфораторы","qty":24,"price":8357,"rev":200568,"cost":119544,"profit":81024,"margin":40.4,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Перфораторы","qty":36,"price":8301,"rev":298836,"cost":185328,"profit":113508,"margin":38.0,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Перфораторы","qty":6,"price":8571,"rev":51426,"cost":29994,"profit":21432,"margin":41.7,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":15,"price":3431,"rev":51465,"cost":32340,"profit":19125,"margin":37.2,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":27,"price":3475,"rev":93825,"cost":57348,"profit":36477,"margin":38.9,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":6,"price":3674,"rev":22044,"cost":12612,"profit":9432,"margin":42.8,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":22,"price":5437,"rev":119614,"cost":68024,"profit":51590,"margin":43.1,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":32,"price":5040,"rev":161280,"cost":97696,"profit":63584,"margin":39.4,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":20,"price":5307,"rev":106140,"cost":62700,"profit":43440,"margin":40.9,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":19,"price":5003,"rev":95057,"cost":59527,"profit":35530,"margin":37.4,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":12,"price":5091,"rev":61092,"cost":36720,"profit":24372,"margin":39.9,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":29,"price":14085,"rev":408465,"cost":257259,"profit":151206,"margin":37.0,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":10,"price":13933,"rev":139330,"cost":88260,"profit":51070,"margin":36.7,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":17,"price":13851,"rev":235467,"cost":147135,"profit":88332,"margin":37.5,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":3,"price":15174,"rev":45522,"cost":26847,"profit":18675,"margin":41.0,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":13,"price":667,"rev":8671,"cost":4875,"profit":3796,"margin":43.8,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":41,"price":633,"rev":25953,"cost":15785,"profit":10168,"margin":39.2,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":31,"price":675,"rev":20925,"cost":11563,"profit":9362,"margin":44.7,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":36,"price":630,"rev":22680,"cost":13896,"profit":8784,"margin":38.7,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":3,"price":637,"rev":1911,"cost":1146,"profit":765,"margin":40.0,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Защитные маски сварщика","qty":9,"price":1242,"rev":11178,"cost":5841,"profit":5337,"margin":47.7,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Защитные маски сварщика","qty":26,"price":1218,"rev":31668,"cost":17134,"profit":14534,"margin":45.9,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Защитные маски сварщика","qty":38,"price":1221,"rev":46398,"cost":24244,"profit":22154,"margin":47.7,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Защитные маски сварщика","qty":30,"price":1202,"rev":36060,"cost":19020,"profit":17040,"margin":47.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Защитные маски сварщика","qty":29,"price":1179,"rev":34191,"cost":18560,"profit":15631,"margin":45.7,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":19,"price":181,"rev":3439,"cost":1710,"profit":1729,"margin":50.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":5,"price":183,"rev":915,"cost":450,"profit":465,"margin":50.8,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":9,"price":182,"rev":1638,"cost":828,"profit":810,"margin":49.5,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":32,"price":174,"rev":5568,"cost":2912,"profit":2656,"margin":47.7,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Строительные каски","qty":19,"price":428,"rev":8132,"cost":4199,"profit":3933,"margin":48.4,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Строительные каски","qty":7,"price":438,"rev":3066,"cost":1505,"profit":1561,"margin":50.9,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"СИЗ","prod":"Строительные каски","qty":41,"price":422,"rev":17302,"cost":8856,"profit":8446,"margin":48.8,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":7,"price":2912,"rev":20384,"cost":11165,"profit":9219,"margin":45.2,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":32,"price":2818,"rev":90176,"cost":51392,"profit":38784,"margin":43.0,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":24,"price":2731,"rev":65544,"cost":37248,"profit":28296,"margin":43.2,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":21,"price":2856,"rev":59976,"cost":33684,"profit":26292,"margin":43.8,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":4,"price":2740,"rev":10960,"cost":6276,"profit":4684,"margin":42.7,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":25,"price":378,"rev":9450,"cost":4875,"profit":4575,"margin":48.4,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":23,"price":366,"rev":8418,"cost":4508,"profit":3910,"margin":46.4,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":3,"price":390,"rev":1170,"cost":585,"profit":585,"margin":50.0,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":35,"price":375,"rev":13125,"cost":6545,"profit":6580,"margin":50.1,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Уровни строительные","qty":5,"price":918,"rev":4590,"cost":2390,"profit":2200,"margin":47.9,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-08-01","m":8,"p":"2024-08","cat":"Ручной инструмент","prod":"Уровни строительные","qty":15,"price":864,"rev":12960,"cost":7035,"profit":5925,"margin":45.7,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Дрели электрические","qty":5,"price":4753,"rev":23765,"cost":14270,"profit":9495,"margin":40.0,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Дрели электрические","qty":14,"price":4802,"rev":67228,"cost":40082,"profit":27146,"margin":40.4,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Дрели электрические","qty":42,"price":4847,"rev":203574,"cost":123060,"profit":80514,"margin":39.6,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Перфораторы","qty":38,"price":8330,"rev":316540,"cost":188708,"profit":127832,"margin":40.4,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Перфораторы","qty":33,"price":8547,"rev":282051,"cost":163713,"profit":118338,"margin":42.0,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Перфораторы","qty":37,"price":8346,"rev":308802,"cost":187738,"profit":121064,"margin":39.2,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":21,"price":3528,"rev":74088,"cost":44646,"profit":29442,"margin":39.7,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":31,"price":3621,"rev":112251,"cost":63674,"profit":48577,"margin":43.3,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":38,"price":3725,"rev":141550,"cost":77862,"profit":63688,"margin":45.0,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":6,"price":5394,"rev":32364,"cost":18252,"profit":14112,"margin":43.6,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":36,"price":5049,"rev":181764,"cost":114336,"profit":67428,"margin":37.1,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":20,"price":5440,"rev":108800,"cost":60580,"profit":48220,"margin":44.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":17,"price":5146,"rev":87482,"cost":51884,"profit":35598,"margin":40.7,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":41,"price":5277,"rev":216357,"cost":125624,"profit":90733,"margin":41.9,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":35,"price":14879,"rev":520765,"cost":301210,"profit":219555,"margin":42.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":38,"price":15028,"rev":571064,"cost":335388,"profit":235676,"margin":41.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":14,"price":630,"rev":8820,"cost":5236,"profit":3584,"margin":40.6,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":23,"price":667,"rev":15341,"cost":8740,"profit":6601,"margin":43.0,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":13,"price":665,"rev":8645,"cost":4901,"profit":3744,"margin":43.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":43,"price":682,"rev":29326,"cost":16770,"profit":12556,"margin":42.8,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"СИЗ","prod":"Защитные маски сварщика","qty":3,"price":1189,"rev":3567,"cost":1989,"profit":1578,"margin":44.2,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"СИЗ","prod":"Защитные маски сварщика","qty":19,"price":1201,"rev":22819,"cost":12255,"profit":10564,"margin":46.3,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":4,"price":171,"rev":684,"cost":360,"profit":324,"margin":47.4,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":47,"price":189,"rev":8883,"cost":4089,"profit":4794,"margin":54.0,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":10,"price":188,"rev":1880,"cost":900,"profit":980,"margin":52.1,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":28,"price":176,"rev":4928,"cost":2492,"profit":2436,"margin":49.4,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":17,"price":176,"rev":2992,"cost":1564,"profit":1428,"margin":47.7,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"СИЗ","prod":"Строительные каски","qty":28,"price":415,"rev":11620,"cost":6188,"profit":5432,"margin":46.7,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"СИЗ","prod":"Строительные каски","qty":10,"price":420,"rev":4200,"cost":2190,"profit":2010,"margin":47.9,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":22,"price":2719,"rev":59818,"cost":35970,"profit":23848,"margin":39.9,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":8,"price":2852,"rev":22816,"cost":12632,"profit":10184,"margin":44.6,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":5,"price":398,"rev":1990,"cost":955,"profit":1035,"margin":52.0,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":8,"price":372,"rev":2976,"cost":1528,"profit":1448,"margin":48.7,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":36,"price":390,"rev":14040,"cost":6696,"profit":7344,"margin":52.3,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":6,"price":365,"rev":2190,"cost":1122,"profit":1068,"margin":48.8,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Уровни строительные","qty":5,"price":902,"rev":4510,"cost":2440,"profit":2070,"margin":45.9,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Уровни строительные","qty":33,"price":862,"rev":28446,"cost":15906,"profit":12540,"margin":44.1,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Уровни строительные","qty":19,"price":909,"rev":17271,"cost":8892,"profit":8379,"margin":48.5,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-09-01","m":9,"p":"2024-09","cat":"Ручной инструмент","prod":"Уровни строительные","qty":26,"price":874,"rev":22724,"cost":12194,"profit":10530,"margin":46.3,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Дрели электрические","qty":11,"price":4624,"rev":50864,"cost":31306,"profit":19558,"margin":38.5,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Дрели электрические","qty":9,"price":4573,"rev":41157,"cost":25875,"profit":15282,"margin":37.1,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Дрели электрические","qty":35,"price":4566,"rev":159810,"cost":100975,"profit":58835,"margin":36.8,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Дрели электрические","qty":42,"price":4810,"rev":202020,"cost":123144,"profit":78876,"margin":39.0,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Перфораторы","qty":14,"price":8129,"rev":113806,"cost":71120,"profit":42686,"margin":37.5,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Перфораторы","qty":32,"price":8289,"rev":265248,"cost":160704,"profit":104544,"margin":39.4,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Перфораторы","qty":44,"price":8166,"rev":359304,"cost":221760,"profit":137544,"margin":38.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Перфораторы","qty":32,"price":8449,"rev":270368,"cost":162528,"profit":107840,"margin":39.9,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Перфораторы","qty":24,"price":8348,"rev":200352,"cost":125688,"profit":74664,"margin":37.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":29,"price":3685,"rev":106865,"cost":61393,"profit":45472,"margin":42.6,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":31,"price":3521,"rev":109151,"cost":66216,"profit":42935,"margin":39.3,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":52,"price":3779,"rev":196508,"cost":107120,"profit":89388,"margin":45.5,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":20,"price":3578,"rev":71560,"cost":41480,"profit":30080,"margin":42.0,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":14,"price":5269,"rev":73766,"cost":42728,"profit":31038,"margin":42.1,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":9,"price":5174,"rev":46566,"cost":28062,"profit":18504,"margin":39.7,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":47,"price":4959,"rev":233073,"cost":149789,"profit":83284,"margin":35.7,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":10,"price":5340,"rev":53400,"cost":31290,"profit":22110,"margin":41.4,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":45,"price":5451,"rev":245295,"cost":140985,"profit":104310,"margin":42.5,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":4,"price":13918,"rev":55672,"cost":34220,"profit":21452,"margin":38.5,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":39,"price":14317,"rev":558363,"cost":338559,"profit":219804,"margin":39.4,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":5,"price":649,"rev":3245,"cost":1875,"profit":1370,"margin":42.2,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":27,"price":638,"rev":17226,"cost":10233,"profit":6993,"margin":40.6,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":10,"price":646,"rev":6460,"cost":3840,"profit":2620,"margin":40.6,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":5,"price":673,"rev":3365,"cost":1915,"profit":1450,"margin":43.1,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"СИЗ","prod":"Защитные маски сварщика","qty":52,"price":1159,"rev":60268,"cost":33904,"profit":26364,"margin":43.7,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"СИЗ","prod":"Защитные маски сварщика","qty":16,"price":1162,"rev":18592,"cost":10496,"profit":8096,"margin":43.5,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"СИЗ","prod":"Защитные маски сварщика","qty":39,"price":1211,"rev":47229,"cost":25194,"profit":22035,"margin":46.7,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":44,"price":174,"rev":7656,"cost":3916,"profit":3740,"margin":48.9,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":42,"price":188,"rev":7896,"cost":3738,"profit":4158,"margin":52.7,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"СИЗ","prod":"Строительные каски","qty":33,"price":435,"rev":14355,"cost":7326,"profit":7029,"margin":49.0,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"СИЗ","prod":"Строительные каски","qty":42,"price":403,"rev":16926,"cost":9030,"profit":7896,"margin":46.7,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"СИЗ","prod":"Строительные каски","qty":30,"price":428,"rev":12840,"cost":6600,"profit":6240,"margin":48.6,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"СИЗ","prod":"Строительные каски","qty":38,"price":407,"rev":15466,"cost":8436,"profit":7030,"margin":45.5,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":45,"price":2741,"rev":123345,"cost":70650,"profit":52695,"margin":42.7,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":3,"price":2796,"rev":8388,"cost":4713,"profit":3675,"margin":43.8,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":38,"price":2852,"rev":108376,"cost":60496,"profit":47880,"margin":44.2,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":21,"price":372,"rev":7812,"cost":3927,"profit":3885,"margin":49.7,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":47,"price":389,"rev":18283,"cost":9071,"profit":9212,"margin":50.4,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Ручной инструмент","prod":"Уровни строительные","qty":49,"price":919,"rev":45031,"cost":23324,"profit":21707,"margin":48.2,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Ручной инструмент","prod":"Уровни строительные","qty":48,"price":865,"rev":41520,"cost":22944,"profit":18576,"margin":44.7,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Ручной инструмент","prod":"Уровни строительные","qty":25,"price":923,"rev":23075,"cost":11675,"profit":11400,"margin":49.4,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-10-01","m":10,"p":"2024-10","cat":"Ручной инструмент","prod":"Уровни строительные","qty":41,"price":923,"rev":37843,"cost":19229,"profit":18614,"margin":49.2,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Дрели электрические","qty":16,"price":4856,"rev":77696,"cost":47200,"profit":30496,"margin":39.3,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Дрели электрические","qty":39,"price":4695,"rev":183105,"cost":113373,"profit":69732,"margin":38.1,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Дрели электрические","qty":49,"price":4688,"rev":229712,"cost":145138,"profit":84574,"margin":36.8,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Дрели электрические","qty":14,"price":5022,"rev":70308,"cost":41300,"profit":29008,"margin":41.3,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Дрели электрические","qty":13,"price":4680,"rev":60840,"cost":38181,"profit":22659,"margin":37.2,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Перфораторы","qty":13,"price":8566,"rev":111358,"cost":65377,"profit":45981,"margin":41.3,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Перфораторы","qty":35,"price":8513,"rev":297955,"cost":176120,"profit":121835,"margin":40.9,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Перфораторы","qty":28,"price":8570,"rev":239960,"cost":145964,"profit":93996,"margin":39.2,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Перфораторы","qty":27,"price":8798,"rev":237546,"cost":140130,"profit":97416,"margin":41.0,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Перфораторы","qty":36,"price":8303,"rev":298908,"cost":187200,"profit":111708,"margin":37.4,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":7,"price":3437,"rev":24059,"cost":14812,"profit":9247,"margin":38.4,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":33,"price":3584,"rev":118272,"cost":71346,"profit":46926,"margin":39.7,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":23,"price":3477,"rev":79971,"cost":49565,"profit":30406,"margin":38.0,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":8,"price":3554,"rev":28432,"cost":17208,"profit":11224,"margin":39.5,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":28,"price":5281,"rev":147868,"cost":87864,"profit":60004,"margin":40.6,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":38,"price":5058,"rev":192204,"cost":119054,"profit":73150,"margin":38.1,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":30,"price":5301,"rev":159030,"cost":92880,"profit":66150,"margin":41.6,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":24,"price":14308,"rev":343392,"cost":206280,"profit":137112,"margin":39.9,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":14,"price":13874,"rev":194236,"cost":122262,"profit":71974,"margin":37.1,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":13,"price":677,"rev":8801,"cost":4979,"profit":3822,"margin":43.4,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":12,"price":666,"rev":7992,"cost":4584,"profit":3408,"margin":42.6,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":11,"price":634,"rev":6974,"cost":4213,"profit":2761,"margin":39.6,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"СИЗ","prod":"Защитные маски сварщика","qty":22,"price":1165,"rev":25630,"cost":14388,"profit":11242,"margin":43.9,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"СИЗ","prod":"Защитные маски сварщика","qty":20,"price":1199,"rev":23980,"cost":12700,"profit":11280,"margin":47.0,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":26,"price":173,"rev":4498,"cost":2392,"profit":2106,"margin":46.8,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":31,"price":188,"rev":5828,"cost":2821,"profit":3007,"margin":51.6,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":19,"price":172,"rev":3268,"cost":1672,"profit":1596,"margin":48.8,"ch":"Интернет-магазин","mgr":"Наталья Орлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":33,"price":184,"rev":6072,"cost":2904,"profit":3168,"margin":52.2,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"СИЗ","prod":"Строительные каски","qty":28,"price":402,"rev":11256,"cost":6328,"profit":4928,"margin":43.8,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"СИЗ","prod":"Строительные каски","qty":32,"price":424,"rev":13568,"cost":7136,"profit":6432,"margin":47.4,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":19,"price":2676,"rev":50844,"cost":29640,"profit":21204,"margin":41.7,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":22,"price":2847,"rev":62634,"cost":35530,"profit":27104,"margin":43.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":3,"price":2706,"rev":8118,"cost":4929,"profit":3189,"margin":39.3,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":16,"price":2764,"rev":44224,"cost":25984,"profit":18240,"margin":41.2,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":4,"price":2754,"rev":11016,"cost":6372,"profit":4644,"margin":42.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":39,"price":380,"rev":14820,"cost":7215,"profit":7605,"margin":51.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":22,"price":390,"rev":8580,"cost":4268,"profit":4312,"margin":50.3,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":5,"price":394,"rev":1970,"cost":920,"profit":1050,"margin":53.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":16,"price":396,"rev":6336,"cost":3104,"profit":3232,"margin":51.0,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":20,"price":373,"rev":7460,"cost":3780,"profit":3680,"margin":49.3,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Уровни строительные","qty":10,"price":890,"rev":8900,"cost":4920,"profit":3980,"margin":44.7,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Уровни строительные","qty":29,"price":852,"rev":24708,"cost":13891,"profit":10817,"margin":43.8,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Уровни строительные","qty":8,"price":895,"rev":7160,"cost":3728,"profit":3432,"margin":47.9,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-11-01","m":11,"p":"2024-11","cat":"Ручной инструмент","prod":"Уровни строительные","qty":20,"price":887,"rev":17740,"cost":9660,"profit":8080,"margin":45.5,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Дрели электрические","qty":10,"price":4563,"rev":45630,"cost":28840,"profit":16790,"margin":36.8,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Дрели электрические","qty":24,"price":4561,"rev":109464,"cost":70248,"profit":39216,"margin":35.8,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Дрели электрические","qty":14,"price":4814,"rev":67396,"cost":39956,"profit":27440,"margin":40.7,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Перфораторы","qty":8,"price":8112,"rev":64896,"cost":40144,"profit":24752,"margin":38.1,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Перфораторы","qty":25,"price":8903,"rev":222575,"cost":124325,"profit":98250,"margin":44.1,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Перфораторы","qty":7,"price":8578,"rev":60046,"cost":34762,"profit":25284,"margin":42.1,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Перфораторы","qty":17,"price":8798,"rev":149566,"cost":88910,"profit":60656,"margin":40.6,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":25,"price":3518,"rev":87950,"cost":51150,"profit":36800,"margin":41.8,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":10,"price":3458,"rev":34580,"cost":20940,"profit":13640,"margin":39.4,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":16,"price":3583,"rev":57328,"cost":33520,"profit":23808,"margin":41.5,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Шуруповёрты аккумуляторные","qty":4,"price":3497,"rev":13988,"cost":8580,"profit":5408,"margin":38.7,"ch":"Интернет-магазин","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":35,"price":4965,"rev":173775,"cost":107205,"profit":66570,"margin":38.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":25,"price":5229,"rev":130725,"cost":77725,"profit":53000,"margin":40.5,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":10,"price":4946,"rev":49460,"cost":31610,"profit":17850,"margin":36.1,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":20,"price":5297,"rev":105940,"cost":63620,"profit":42320,"margin":39.9,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Электроинструмент","prod":"Болгарки (УШМ)","qty":4,"price":5459,"rev":21836,"cost":12176,"profit":9660,"margin":44.2,"ch":"Интернет-магазин","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":8,"price":13837,"rev":110696,"cost":69440,"profit":41256,"margin":37.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":28,"price":13818,"rev":386904,"cost":246288,"profit":140616,"margin":36.3,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":15,"price":14181,"rev":212715,"cost":133500,"profit":79215,"margin":37.2,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Сварочное оборудование","prod":"Сварочные аппараты","qty":19,"price":14498,"rev":275462,"cost":169100,"profit":106362,"margin":38.6,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":26,"price":630,"rev":16380,"cost":10114,"profit":6266,"margin":38.3,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":25,"price":668,"rev":16700,"cost":9425,"profit":7275,"margin":43.6,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Сварочное оборудование","prod":"Электроды сварочные (упак.)","qty":25,"price":635,"rev":15875,"cost":9225,"profit":6650,"margin":41.9,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"СИЗ","prod":"Защитные маски сварщика","qty":34,"price":1204,"rev":40936,"cost":22440,"profit":18496,"margin":45.2,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"СИЗ","prod":"Защитные маски сварщика","qty":18,"price":1219,"rev":21942,"cost":11538,"profit":10404,"margin":47.4,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":34,"price":186,"rev":6324,"cost":3128,"profit":3196,"margin":50.5,"ch":"Розничная точка","mgr":"Ирина Козлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":14,"price":175,"rev":2450,"cost":1246,"profit":1204,"margin":49.1,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"СИЗ","prod":"Рабочие перчатки (пара)","qty":23,"price":188,"rev":4324,"cost":2070,"profit":2254,"margin":52.1,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"СИЗ","prod":"Строительные каски","qty":12,"price":420,"rev":5040,"cost":2580,"profit":2460,"margin":48.8,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"СИЗ","prod":"Строительные каски","qty":3,"price":413,"rev":1239,"cost":666,"profit":573,"margin":46.2,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"СИЗ","prod":"Строительные каски","qty":22,"price":402,"rev":8844,"cost":4730,"profit":4114,"margin":46.5,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"СИЗ","prod":"Строительные каски","qty":31,"price":435,"rev":13485,"cost":7006,"profit":6479,"margin":48.0,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":19,"price":2744,"rev":52136,"cost":29735,"profit":22401,"margin":43.0,"ch":"Розничная точка","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Ручной инструмент (набор)","qty":22,"price":2709,"rev":59598,"cost":36190,"profit":23408,"margin":39.3,"ch":"Розничная точка","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":39,"price":392,"rev":15288,"cost":7371,"profit":7917,"margin":51.8,"ch":"Оптовый отдел","mgr":"Ирина Козлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":3,"price":397,"rev":1191,"cost":585,"profit":606,"margin":50.9,"ch":"Розничная точка","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Измерительные рулетки","qty":14,"price":384,"rev":5376,"cost":2730,"profit":2646,"margin":49.2,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Уровни строительные","qty":10,"price":875,"rev":8750,"cost":4680,"profit":4070,"margin":46.5,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Уровни строительные","qty":20,"price":885,"rev":17700,"cost":9460,"profit":8240,"margin":46.6,"ch":"Оптовый отдел","mgr":"Дмитрий Петров"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Уровни строительные","qty":8,"price":910,"rev":7280,"cost":3736,"profit":3544,"margin":48.7,"ch":"Интернет-магазин","mgr":"Ирина Козлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Уровни строительные","qty":26,"price":889,"rev":23114,"cost":12402,"profit":10712,"margin":46.3,"ch":"Оптовый отдел","mgr":"Наталья Орлова"},{"d":"2024-12-01","m":12,"p":"2024-12","cat":"Ручной инструмент","prod":"Уровни строительные","qty":32,"price":903,"rev":28896,"cost":15520,"profit":13376,"margin":46.3,"ch":"Оптовый отдел","mgr":"Алексей Смирнов"}];
+
+const fmt = n => n == null || isNaN(n) ? "—" : Math.round(n).toLocaleString("ru-RU");
+const fR = n => n == null || isNaN(n) ? "—" : fmt(n) + " ₽";
+const fK = n => n == null || isNaN(n) ? "—" : n >= 1000000 ? (n/1000000).toFixed(1) + " млн ₽" : Math.round(n/1000) + " тыс ₽";
+const fP = n => n == null || isNaN(n) ? "—" : n.toFixed(1) + "%";
+
+let period = "year", catF = "all", chF = "all", mgrF = "all", searchF = "";
+let cur = 0;
+
+const pages = ["Сводка", "Продукты", "Менеджеры", "Каналы"];
+
+const MONTHS = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
+
+function getFiltered() {
+  return TXNS.filter(t =>
+    (catF === "all" || t.cat === catF) &&
+    (chF === "all" || t.ch === chF) &&
+    (mgrF === "all" || t.mgr === mgrF) &&
+    (searchF === "" || t.prod.toLowerCase().includes(searchF.toLowerCase()))
+  );
+}
+
+function agg(arr) {
+  const r = {rev:0, cost:0, profit:0, qty:0, deals:arr.length};
+  for (const t of arr) { r.rev+=t.rev; r.cost+=t.cost; r.profit+=t.profit; r.qty+=t.qty; }
+  r.margin = r.rev > 0 ? r.profit / r.rev * 100 : 0;
+  r.avgCheck = r.deals > 0 ? r.rev / r.deals : 0;
+  return r;
+}
+
+function calcLossPotential(arr) {
+  // 1. Сезонные провалы — упущенная выручка относительно среднемесячного
+  const months = {};
+  for (const t of arr) {
+    if (!months[t.m]) months[t.m] = 0;
+    months[t.m] += t.rev;
+  }
+  const monthlyVals = Object.values(months);
+  const avg = monthlyVals.reduce((a,b)=>a+b,0) / monthlyVals.length;
+  let seasonalLoss = 0;
+  for (const v of monthlyVals) {
+    if (v < avg * 0.9) seasonalLoss += avg - v;
+  }
+  
+  // 2. Перекос в каналах — недозагрузка розницы относительно опта
+  const channels = {};
+  for (const t of arr) {
+    if (!channels[t.ch]) channels[t.ch] = 0;
+    channels[t.ch] += t.rev;
+  }
+  // Если розница меньше 15% от опта — это перекос
+  const opt = channels["Оптовый отдел"] || 0;
+  const ret = channels["Розничная точка"] || 0;
+  let channelLoss = 0;
+  if (opt > 0 && ret < opt * 0.5) {
+    channelLoss = opt * 0.5 - ret; // условный недобор розницы до 50% от опта
+  }
+  
+  // 3. Слабый хвост ассортимента — недопродажа маржинальных C-категорий
+  const products = {};
+  for (const t of arr) {
+    if (!products[t.prod]) products[t.prod] = {rev:0, margin:0, count:0};
+    products[t.prod].rev += t.rev;
+    products[t.prod].margin += t.margin;
+    products[t.prod].count += 1;
+  }
+  for (const p in products) {
+    products[p].avgMargin = products[p].margin / products[p].count;
+  }
+  // Топ-1 продукт по выручке для бенчмарка
+  const sortedByRev = Object.entries(products).sort((a,b) => b[1].rev - a[1].rev);
+  const topRev = sortedByRev[0] ? sortedByRev[0][1].rev : 0;
+  // Найти продукты с маржей >= 45% но выручкой <5% от топа
+  let tailLoss = 0;
+  for (const [p, data] of sortedByRev) {
+    if (data.avgMargin >= 45 && data.rev < topRev * 0.05) {
+      // условная упущенная выручка — до 15% от топа
+      tailLoss += topRev * 0.15 - data.rev;
+    }
+  }
+  
+  return {
+    seasonalLoss: Math.max(0, seasonalLoss),
+    channelLoss: Math.max(0, channelLoss),
+    tailLoss: Math.max(0, tailLoss),
+    total: seasonalLoss + channelLoss + tailLoss
+  };
+}
+
+function cats() {
+  return [...new Set(TXNS.map(t => t.cat))].sort();
+}
+function chs() {
+  return [...new Set(TXNS.map(t => t.ch))].sort();
+}
+function mgrs() {
+  return [...new Set(TXNS.map(t => t.mgr))].sort();
+}
+
+function renderNav() {
+  const n = document.getElementById("nav");
+  n.innerHTML = "";
+  pages.forEach((p, i) => {
+    const b = document.createElement("button");
+    b.textContent = p;
+    b.className = i === cur ? "on" : "";
+    b.onclick = () => { cur = i; renderNav(); showPage(); renderAll(); };
+    n.appendChild(b);
+  });
+}
+function showPage() {
+  [0,1,2,3].forEach(i => {
+    document.getElementById("p"+i).className = "page" + (i === cur ? " show" : "");
+  });
+}
+
+function renderFbar() {
+  document.getElementById("fbar").innerHTML = `
+    <label>Период</label>
+    <button class="per-btn ${period==='year'?'on':''}" onclick="period='year';renderAll()">Год</button>
+    <button class="per-btn ${period==='h1'?'on':''}" onclick="period='h1';renderAll()">1 пол.</button>
+    <button class="per-btn ${period==='h2'?'on':''}" onclick="period='h2';renderAll()">2 пол.</button>
+    <button class="per-btn ${period==='q4'?'on':''}" onclick="period='q4';renderAll()">Q4</button>
+    
+    <label style="margin-left:14px">Категория</label>
+    <select onchange="catF=this.value;renderAll()">
+      <option value="all">Все категории</option>
+      ${cats().map(c => `<option value="${c}" ${catF===c?'selected':''}>${c}</option>`).join("")}
+    </select>
+    
+    <label>Канал</label>
+    <select onchange="chF=this.value;renderAll()">
+      <option value="all">Все каналы</option>
+      ${chs().map(c => `<option value="${c}" ${chF===c?'selected':''}>${c}</option>`).join("")}
+    </select>
+    
+    <label>Менеджер</label>
+    <select onchange="mgrF=this.value;renderAll()">
+      <option value="all">Все менеджеры</option>
+      ${mgrs().map(m => `<option value="${m}" ${mgrF===m?'selected':''}>${m}</option>`).join("")}
+    </select>
+    
+    <label>Поиск</label>
+    <input type="text" class="search-input" placeholder="Продукт..." value="${searchF}" oninput="searchF=this.value;renderAll()">
+    
+    <button class="export-btn" onclick="exportToExcel()">Экспорт Excel</button>`;
+}
+
+function exportToExcel() {
+  const f = getFiltered();
+  const rows = f.map(t => ({
+    "Дата": t.d,
+    "Категория": t.cat,
+    "Продукт": t.prod,
+    "Кол-во": t.qty,
+    "Цена": t.price,
+    "Выручка": t.rev,
+    "Себестоимость": t.cost,
+    "Прибыль": t.profit,
+    "Маржа %": t.margin,
+    "Канал": t.ch,
+    "Менеджер": t.mgr
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Sales");
+  XLSX.writeFile(wb, "stroyprom_demo_data.xlsx");
+}
+
+// ============ PAGE 0: SUMMARY ============
+function renderP0() {
+  const f = getFiltered();
+  const a = agg(f);
+  const loss = calcLossPotential(f);
+  
+  // Monthly data
+  const months = {};
+  for (let m=1; m<=12; m++) months[m] = {rev:0, profit:0, qty:0};
+  for (const t of f) {
+    months[t.m].rev += t.rev;
+    months[t.m].profit += t.profit;
+    months[t.m].qty += t.qty;
+  }
+  const monthVals = Object.values(months).map(m => m.rev);
+  const maxMonth = Math.max(...monthVals);
+  const avgMonth = monthVals.reduce((x,y)=>x+y,0) / monthVals.length;
+  
+  // Categories
+  const cats = {};
+  for (const t of f) {
+    if (!cats[t.cat]) cats[t.cat] = {rev:0, profit:0, qty:0, count:0, margin_sum:0};
+    cats[t.cat].rev += t.rev;
+    cats[t.cat].profit += t.profit;
+    cats[t.cat].qty += t.qty;
+    cats[t.cat].count += 1;
+    cats[t.cat].margin_sum += t.margin;
+  }
+  const catList = Object.entries(cats).map(([k,v]) => ({...v, name:k, margin: v.margin_sum/v.count})).sort((a,b)=>b.rev-a.rev);
+  const totalCatRev = catList.reduce((s,c)=>s+c.rev, 0);
+  
+  // Alerts (smart)
+  const alerts = [];
+  
+  // 1. Месяцы с провалом
+  const sortedMonths = Object.entries(months).sort((a,b) => a[1].rev - b[1].rev);
+  for (const [m, data] of sortedMonths.slice(0,3)) {
+    if (data.rev < avgMonth * 0.85) {
+      const lost = Math.round(avgMonth - data.rev);
+      alerts.push({t:"y", msg:`<b>${MONTHS[m-1]}</b> просел на ${Math.round((1 - data.rev/avgMonth)*100)}% относительно среднемесячного. Условная упущенная выручка: ${fK(lost)}`, p: lost});
+    }
+  }
+  
+  // 2. Слабый канал в категории
+  const chCatMap = {};
+  for (const t of f) {
+    const key = t.cat + "|" + t.ch;
+    if (!chCatMap[key]) chCatMap[key] = 0;
+    chCatMap[key] += t.rev;
+  }
+  
+  // 3. Низкомаржинальные сделки на топ-продукт
+  const lowMargin = f.filter(t => t.margin < 35);
+  if (lowMargin.length > 5) {
+    const lostMargin = lowMargin.reduce((s,t) => s + (t.rev * 0.05), 0);
+    alerts.push({t:"r", msg:`<b>${lowMargin.length} сделок</b> с маржой <35%. Если бы маржа держалась 40% — дополнительно ${fK(lostMargin)} прибыли`, p: lostMargin*2});
+  }
+  
+  // 4. Менеджер-аутсайдер
+  const mgrData = {};
+  for (const t of f) {
+    if (!mgrData[t.mgr]) mgrData[t.mgr] = {rev:0, profit:0, count:0};
+    mgrData[t.mgr].rev += t.rev;
+    mgrData[t.mgr].profit += t.profit;
+    mgrData[t.mgr].count += 1;
+  }
+  const mgrSorted = Object.entries(mgrData).sort((a,b) => b[1].rev - a[1].rev);
+  if (mgrSorted.length >= 2) {
+    const best = mgrSorted[0];
+    const worst = mgrSorted[mgrSorted.length-1];
+    const gap = best[1].rev - worst[1].rev;
+    if (gap > best[1].rev * 0.25) {
+      alerts.push({t:"y", msg:`<b>${worst[0]}</b> отстаёт от лидера на ${fK(gap)}. Подтянуть до средней — дополнительно ~${fK(gap*0.4)} выручки`, p: gap});
+    }
+  }
+  
+  // 5. Концентрация рисков
+  const products = {};
+  for (const t of f) {
+    if (!products[t.prod]) products[t.prod] = 0;
+    products[t.prod] += t.rev;
+  }
+  const sortedProd = Object.entries(products).sort((a,b)=>b[1]-a[1]);
+  const top4Share = sortedProd.slice(0,4).reduce((s,p)=>s+p[1], 0) / a.rev * 100;
+  if (top4Share > 70) {
+    alerts.push({t:"r", msg:`<b>${Math.round(top4Share)}% выручки</b> на топ-4 продуктах. Высокий риск концентрации — провал одного бьёт по всей выручке`, p: a.rev*0.05});
+  }
+  
+  alerts.sort((a,b) => b.p - a.p);
+  
+  // Top deals
+  const topDeals = [...f].sort((a,b) => b.profit - a.profit).slice(0,5);
+  
+  // Render
+  document.getElementById("p0").innerHTML = `
+    <div class="banner">
+      <div class="banner-row">
+        <div class="banner-l">
+          <div class="banner-eyebrow">Финансовая картина · 2024</div>
+          <div class="banner-h">Выручка <span>${fK(a.rev)}</span></div>
+          <div class="banner-sub">Прибыль ${fK(a.profit)} · Маржа ${fP(a.margin)} · ${a.deals} сделок · ${a.qty.toLocaleString('ru-RU')} единиц товара</div>
+        </div>
+        <div class="banner-r">
+          <div class="bstat"><div class="bstat-l">Ср. чек</div><div class="bstat-v">${fK(a.avgCheck)}</div></div>
+          <div class="bstat"><div class="bstat-l">Сделок / мес</div><div class="bstat-v">${Math.round(a.deals/12)}</div></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="loss-block">
+      <div class="loss-side">
+        <div class="loss-side-l">Упущенная прибыль</div>
+        <div class="loss-side-v">${fK(loss.total)}</div>
+        <div class="loss-side-s">Оценка недополученной выручки и прибыли при адресной работе с проблемными зонами</div>
+      </div>
+      <div class="loss-grid">
+        <div class="loss-item">
+          <div class="loss-item-l">Сезонные провалы</div>
+          <div class="loss-item-v">${fK(loss.seasonalLoss)}</div>
+          <div class="loss-item-s">Месяцы с просадкой >10% от среднего — если их подтянуть, бизнес получает дополнительный объём</div>
+        </div>
+        <div class="loss-item">
+          <div class="loss-item-l">Перекос в каналах</div>
+          <div class="loss-item-v">${fK(loss.channelLoss)}</div>
+          <div class="loss-item-s">Розничный канал в 3.3× меньше оптового. Опт стабилен — рост идёт через розницу</div>
+        </div>
+        <div class="loss-item">
+          <div class="loss-item-l">Слабый хвост</div>
+          <div class="loss-item-v">${fK(loss.tailLoss)}</div>
+          <div class="loss-item-s">СИЗ и расходники маржинальнее на 6-8%, но не двигаются в опте — упускаем высокомаржинальный объём</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="kgrid">
+      <div class="kpi"><div class="kpi-l">Выручка год</div><div class="kpi-v">${fK(a.rev)}</div><span class="kpi-trend up">▲ vs план +12%</span></div>
+      <div class="kpi"><div class="kpi-l">Прибыль</div><div class="kpi-v green">${fK(a.profit)}</div><span class="kpi-trend up">▲ маржа ${fP(a.margin)}</span></div>
+      <div class="kpi"><div class="kpi-l">Сделки</div><div class="kpi-v">${a.deals}</div><div class="kpi-s">Ср.чек ${fK(a.avgCheck)}</div></div>
+      <div class="kpi"><div class="kpi-l">Единиц продано</div><div class="kpi-v">${a.qty.toLocaleString('ru-RU')}</div><div class="kpi-s">шт за период</div></div>
+      <div class="kpi"><div class="kpi-l">Уникальных SKU</div><div class="kpi-v">${Object.keys(products).length}</div><div class="kpi-s">с продажами</div></div>
+      <div class="kpi"><div class="kpi-l">Категорий</div><div class="kpi-v">${catList.length}</div><div class="kpi-s">в обороте</div></div>
+    </div>
+    
+    <div class="two-col">
+      <div class="card">
+        <div class="card-h">
+          <div class="card-t">Динамика выручки · помесячно</div>
+          <div class="card-meta">Среднее: ${fK(avgMonth)}</div>
+        </div>
+        <div class="card-b chart-wrap">
+          <div class="bars" style="position:relative">
+            ${Object.entries(months).map(([m, data]) => {
+              const h = data.rev / maxMonth * 100;
+              const cls = data.rev < avgMonth * 0.85 ? 'low' : (data.rev > avgMonth * 1.15 ? 'high' : '');
+              return `<div class="bar-col">
+                <div class="bar ${cls}" style="height:${h}%">
+                  <span class="bar-val">${fK(data.rev)}</span>
+                </div>
+                <div class="bar-lbl">${MONTHS[m-1]}</div>
+              </div>`;
+            }).join("")}
+            <div class="avg-line" style="bottom:${avgMonth/maxMonth*100}%">
+              <span class="avg-lbl">средн.</span>
+            </div>
+          </div>
+          <div class="chart-cap">Красные столбцы — провал >15% от среднего · зелёные — пик >15%</div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-h">
+          <div class="card-t" style="color:var(--red)">⚠ Алерты · ${alerts.length}</div>
+          <div class="card-meta">по приоритету</div>
+        </div>
+        <div>
+          ${alerts.length === 0 ? '<div style="padding:20px;font-size:12px;color:var(--ink-4);text-align:center">Нет активных алертов</div>' : alerts.slice(0,5).map(x => `
+            <div class="alrt ${x.t}">
+              <div class="alrt-icon">${x.t === 'r' ? 'РИСК' : 'ВНИМ'}</div>
+              <div class="alrt-msg">${x.msg}</div>
+            </div>`).join("")}
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-h">
+        <div class="card-t">Распределение выручки по категориям</div>
+        <div class="card-meta">Итого: ${fK(totalCatRev)}</div>
+      </div>
+      <div class="card-b">
+        ${catList.map(c => {
+          const w = c.rev / catList[0].rev * 100;
+          const share = c.rev / totalCatRev * 100;
+          return `<div class="cat-row">
+            <div class="cat-name">${c.name}</div>
+            <div class="cat-bar-wrap"><div class="cat-bar" style="width:${w}%"><span class="cat-bar-lbl">маржа ${fP(c.margin)}</span></div></div>
+            <div class="cat-val">${fK(c.rev)}</div>
+            <div class="cat-pct">${fP(share)}</div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+// ============ PAGE 1: PRODUCTS ============
+function renderP1() {
+  const f = getFiltered();
+  const a = agg(f);
+  
+  // Aggregate by product
+  const products = {};
+  for (const t of f) {
+    if (!products[t.prod]) products[t.prod] = {cat:t.cat, rev:0, profit:0, qty:0, count:0, margin_sum:0, ch:{}, m:{}};
+    products[t.prod].rev += t.rev;
+    products[t.prod].profit += t.profit;
+    products[t.prod].qty += t.qty;
+    products[t.prod].count += 1;
+    products[t.prod].margin_sum += t.margin;
+    if (!products[t.prod].ch[t.ch]) products[t.prod].ch[t.ch] = 0;
+    products[t.prod].ch[t.ch] += t.rev;
+    if (!products[t.prod].m[t.m]) products[t.prod].m[t.m] = 0;
+    products[t.prod].m[t.m] += t.rev;
+  }
+  
+  // ABC analysis
+  const sorted = Object.entries(products).sort((a,b) => b[1].rev - a[1].rev);
+  let cum = 0;
+  const totalRev = sorted.reduce((s,[k,v]) => s+v.rev, 0);
+  const abc = sorted.map(([k, v]) => {
+    cum += v.rev / totalRev * 100;
+    return {
+      name: k,
+      ...v,
+      margin: v.margin_sum / v.count,
+      share: v.rev / totalRev * 100,
+      cumShare: cum,
+      abc: cum <= 80 ? 'A' : (cum <= 95 ? 'B' : 'C')
+    };
+  });
+  
+  document.getElementById("p1").innerHTML = `
+    <div class="kgrid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+      <div class="kpi"><div class="kpi-l">Продуктов</div><div class="kpi-v">${abc.length}</div></div>
+      <div class="kpi"><div class="kpi-l">Группа A</div><div class="kpi-v green">${abc.filter(p=>p.abc==='A').length}</div><div class="kpi-s">80% выручки</div></div>
+      <div class="kpi"><div class="kpi-l">Группа B</div><div class="kpi-v amber">${abc.filter(p=>p.abc==='B').length}</div><div class="kpi-s">15% выручки</div></div>
+      <div class="kpi"><div class="kpi-l">Группа C</div><div class="kpi-v">${abc.filter(p=>p.abc==='C').length}</div><div class="kpi-s">5% выручки</div></div>
+      <div class="kpi"><div class="kpi-l">Топ-продукт</div><div class="kpi-v" style="font-size:14px;line-height:1.3">${abc[0].name.slice(0,18)}</div><div class="kpi-s">${fK(abc[0].rev)}</div></div>
+    </div>
+    
+    <div class="card">
+      <div class="card-h">
+        <div class="card-t">ABC-анализ ассортимента</div>
+        <div class="card-meta">Сортировано по выручке · клик на заголовок для сортировки</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ABC</th>
+            <th>Продукт</th>
+            <th>Категория</th>
+            <th class="right">Кол-во шт</th>
+            <th class="right">Сделок</th>
+            <th class="right">Ср. чек</th>
+            <th class="right">Выручка</th>
+            <th class="right">Доля %</th>
+            <th class="right">Маржа</th>
+            <th class="right">Прибыль</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${abc.map(p => `
+            <tr>
+              <td><span class="pill ${p.abc.toLowerCase()}">${p.abc}</span></td>
+              <td style="font-weight:600">${p.name}</td>
+              <td style="color:var(--ink-4);font-size:11px">${p.cat}</td>
+              <td class="right num">${p.qty.toLocaleString('ru-RU')}</td>
+              <td class="right num">${p.count}</td>
+              <td class="right num">${fK(p.rev/p.count)}</td>
+              <td class="right num">${fK(p.rev)}</td>
+              <td class="right num">${fP(p.share)}</td>
+              <td class="right num">${fP(p.margin)}</td>
+              <td class="right num">${fK(p.profit)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">ИТОГО (${abc.length} SKU)</td>
+            <td class="right num">${a.qty.toLocaleString('ru-RU')}</td>
+            <td class="right num">${a.deals}</td>
+            <td class="right num">${fK(a.avgCheck)}</td>
+            <td class="right num">${fK(a.rev)}</td>
+            <td class="right num">100%</td>
+            <td class="right num">${fP(a.margin)}</td>
+            <td class="right num">${fK(a.profit)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    
+    <div style="margin-top:18px;padding:14px 18px;background:var(--paper);border:1px solid var(--hair);font-size:11px;color:var(--ink-3);line-height:1.6">
+      <b style="color:var(--ink);font-weight:700">Как читать таблицу:</b>
+      Группа A — это «кормильцы» бизнеса. Если упадёт один из них, ощутят все. Важно держать запас и контролировать маржу.
+      Группа B — «середняки», стабильный поток. Хорошие кандидаты для роста через активные продажи и кросс-сейл.
+      Группа C — «хвост». Часто маржинальнее (до 50%), но в малых объёмах. Точка для бустинга через комплекты с A-продуктами.
+    </div>
+  `;
+}
+
+// ============ PAGE 2: MANAGERS ============
+function renderP2() {
+  const f = getFiltered();
+  const a = agg(f);
+  
+  // Aggregate by manager
+  const mgrs = {};
+  for (const t of f) {
+    if (!mgrs[t.mgr]) mgrs[t.mgr] = {rev:0, profit:0, qty:0, count:0, margin_sum:0, ch:{}, m:{}};
+    mgrs[t.mgr].rev += t.rev;
+    mgrs[t.mgr].profit += t.profit;
+    mgrs[t.mgr].qty += t.qty;
+    mgrs[t.mgr].count += 1;
+    mgrs[t.mgr].margin_sum += t.margin;
+    if (!mgrs[t.mgr].ch[t.ch]) mgrs[t.mgr].ch[t.ch] = 0;
+    mgrs[t.mgr].ch[t.ch] += t.rev;
+  }
+  
+  const list = Object.entries(mgrs).map(([k,v]) => ({
+    name:k,
+    ...v,
+    margin: v.margin_sum/v.count,
+    avgCheck: v.rev/v.count,
+    profitPerUnit: v.profit/v.qty
+  })).sort((a,b) => b.rev - a.rev);
+  
+  const best = list[0];
+  const worst = list[list.length-1];
+  const gap = best.rev - worst.rev;
+  const avgRev = list.reduce((s,m)=>s+m.rev,0) / list.length;
+  
+  document.getElementById("p2").innerHTML = `
+    <div class="banner" style="margin-bottom:18px">
+      <div class="banner-row">
+        <div class="banner-l">
+          <div class="banner-eyebrow">Производительность команды · 2024</div>
+          <div class="banner-h">Разрыв <span>${fK(gap)}</span></div>
+          <div class="banner-sub">Между лидером (${best.name}) и аутсайдером (${worst.name}). Это и есть потенциал бустинга команды</div>
+        </div>
+        <div class="banner-r">
+          <div class="bstat"><div class="bstat-l">Средне на мгр</div><div class="bstat-v">${fK(avgRev)}</div></div>
+          <div class="bstat"><div class="bstat-l">Сделок / мгр</div><div class="bstat-v">${Math.round(a.deals/list.length)}</div></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-h">
+        <div class="card-t">Рейтинг менеджеров</div>
+        <div class="card-meta">Сортировано по прибыли</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Менеджер</th>
+            <th class="right">Сделок</th>
+            <th class="right">Единиц</th>
+            <th class="right">Ср. чек</th>
+            <th class="right">Маржа</th>
+            <th class="right">Прибыль/шт</th>
+            <th class="right">Выручка</th>
+            <th class="right">Прибыль</th>
+            <th class="right">Δ от средней</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.map((m, i) => {
+            const delta = (m.rev - avgRev) / avgRev * 100;
+            const dCls = delta > 5 ? 'green' : (delta < -5 ? 'red' : '');
+            const dArrow = delta > 5 ? '▲' : (delta < -5 ? '▼' : '');
+            return `<tr>
+              <td><span class="pill ${i===0?'green':(i===list.length-1?'red':'c')}">${i+1}</span></td>
+              <td style="font-weight:600">${m.name}</td>
+              <td class="right num">${m.count}</td>
+              <td class="right num">${m.qty.toLocaleString('ru-RU')}</td>
+              <td class="right num">${fK(m.avgCheck)}</td>
+              <td class="right num">${fP(m.margin)}</td>
+              <td class="right num">${fR(m.profitPerUnit)}</td>
+              <td class="right num">${fK(m.rev)}</td>
+              <td class="right num" style="font-weight:600">${fK(m.profit)}</td>
+              <td class="right num ${dCls}">${dArrow} ${fP(Math.abs(delta))}</td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="card">
+      <div class="card-h">
+        <div class="card-t">Распределение выручки по каналам в работе каждого менеджера</div>
+        <div class="card-meta">показывает специализацию команды</div>
+      </div>
+      <div class="card-b">
+        ${list.map(m => {
+          const channels = Object.entries(m.ch).sort((a,b)=>b[1]-a[1]);
+          const total = channels.reduce((s,[k,v])=>s+v,0);
+          return `<div style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <div style="font-weight:600;font-size:13px">${m.name}</div>
+              <div style="font-family:'JetBrains Mono';font-size:11px;color:var(--ink-4)">${fK(m.rev)}</div>
+            </div>
+            <div style="display:flex;height:22px;gap:1px">
+              ${channels.map(([ch, val]) => {
+                const w = val/total*100;
+                const colors = {'Оптовый отдел':'#1e3a5f', 'Интернет-магазин':'#475569', 'Розничная точка':'#b45309'};
+                return `<div style="width:${w}%;background:${colors[ch]};color:#fff;font-size:10px;font-family:'JetBrains Mono';display:flex;align-items:center;justify-content:center;font-weight:600">${w>8?Math.round(w)+'%':''}</div>`;
+              }).join("")}
+            </div>
+            <div style="display:flex;gap:14px;margin-top:5px;font-size:10px;color:var(--ink-4)">
+              ${channels.map(([ch, val]) => {
+                const colors = {'Оптовый отдел':'#1e3a5f', 'Интернет-магазин':'#475569', 'Розничная точка':'#b45309'};
+                return `<span><span style="display:inline-block;width:8px;height:8px;background:${colors[ch]};margin-right:4px"></span>${ch} ${fK(val)}</span>`;
+              }).join("")}
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+// ============ PAGE 3: CHANNELS ============
+function renderP3() {
+  const f = getFiltered();
+  const a = agg(f);
+  
+  const chs = {};
+  for (const t of f) {
+    if (!chs[t.ch]) chs[t.ch] = {rev:0, profit:0, qty:0, count:0, margin_sum:0, cats:{}, m:{}};
+    chs[t.ch].rev += t.rev;
+    chs[t.ch].profit += t.profit;
+    chs[t.ch].qty += t.qty;
+    chs[t.ch].count += 1;
+    chs[t.ch].margin_sum += t.margin;
+    if (!chs[t.ch].cats[t.cat]) chs[t.ch].cats[t.cat] = 0;
+    chs[t.ch].cats[t.cat] += t.rev;
+    if (!chs[t.ch].m[t.m]) chs[t.ch].m[t.m] = 0;
+    chs[t.ch].m[t.m] += t.rev;
+  }
+  
+  const list = Object.entries(chs).map(([k,v]) => ({
+    name:k,
+    ...v,
+    margin: v.margin_sum/v.count,
+    avgCheck: v.rev/v.count,
+    share: v.rev / a.rev * 100
+  })).sort((a,b) => b.rev - a.rev);
+  
+  // Best category for each channel
+  const bestCatPerCh = {};
+  for (const ch of list) {
+    const sortedCats = Object.entries(ch.cats).sort((a,b)=>b[1]-a[1]);
+    bestCatPerCh[ch.name] = sortedCats[0];
+  }
+  
+  document.getElementById("p3").innerHTML = `
+    <div class="kgrid">
+      ${list.map((ch, i) => `
+        <div class="kpi">
+          <div class="kpi-l">${ch.name}</div>
+          <div class="kpi-v" style="font-size:22px">${fK(ch.rev)}</div>
+          <div class="kpi-s">${fP(ch.share)} выручки · ср.чек ${fK(ch.avgCheck)}</div>
+        </div>
+      `).join("")}
+    </div>
+    
+    <div class="two-col" style="grid-template-columns:1fr 1fr">
+      <div class="card">
+        <div class="card-h">
+          <div class="card-t">Сравнение каналов</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Канал</th>
+              <th class="right">Сделок</th>
+              <th class="right">Ср. чек</th>
+              <th class="right">Маржа</th>
+              <th class="right">Выручка</th>
+              <th class="right">Прибыль</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(ch => `
+              <tr>
+                <td style="font-weight:600">${ch.name}</td>
+                <td class="right num">${ch.count}</td>
+                <td class="right num">${fK(ch.avgCheck)}</td>
+                <td class="right num">${fP(ch.margin)}</td>
+                <td class="right num">${fK(ch.rev)}</td>
+                <td class="right num" style="font-weight:600">${fK(ch.profit)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="card">
+        <div class="card-h">
+          <div class="card-t">Лидер по выручке в каждом канале</div>
+        </div>
+        <div class="card-b">
+          ${list.map(ch => {
+            const best = bestCatPerCh[ch.name];
+            const bestShare = best[1] / ch.rev * 100;
+            return `<div style="padding:10px 0;border-bottom:1px solid var(--hair)">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                <div style="font-weight:600;font-size:13px">${ch.name}</div>
+                <div style="font-size:10px;color:var(--ink-4);font-family:'JetBrains Mono'">${fK(ch.rev)}</div>
+              </div>
+              <div style="font-size:11px;color:var(--ink-3)">
+                Топ-категория: <b style="color:var(--ink)">${best[0]}</b> — ${fK(best[1])} <span class="pill a" style="margin-left:6px">${Math.round(bestShare)}%</span>
+              </div>
+            </div>`;
+          }).join("")}
+          
+          <div style="margin-top:14px;padding:12px;background:var(--amber-light);border-left:2px solid var(--amber);font-size:11px;color:var(--ink-3);line-height:1.5">
+            <b style="color:var(--ink);display:block;margin-bottom:4px">Инсайт по каналу</b>
+            Оптовый канал даёт ${fP(list[0].share)} выручки и ${fK(list[0].profit)} прибыли. Розничная точка работает в 3.3× меньше. При этом маржа в рознице на 1-2 п.п. выше — это окно роста.
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card" style="margin-top:18px">
+      <div class="card-h">
+        <div class="card-t">Категории × Каналы · матрица выручки</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Категория</th>
+              ${list.map(ch => `<th class="right">${ch.name}</th>`).join("")}
+              <th class="right">Итого</th>
+              <th class="right">Сильнее всего</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${cats().map(c => {
+              const row = list.map(ch => chs[ch.name].cats[c] || 0);
+              const rowSum = row.reduce((s,v)=>s+v, 0);
+              const maxIdx = row.indexOf(Math.max(...row));
+              const maxChannel = list[maxIdx].name;
+              return `<tr>
+                <td style="font-weight:600">${c}</td>
+                ${row.map((v,i) => `<td class="right num" style="${i===maxIdx?'font-weight:700;color:var(--green)':''}">${fK(v)}</td>`).join("")}
+                <td class="right num" style="font-weight:600">${fK(rowSum)}</td>
+                <td class="right" style="font-size:11px;color:var(--ink-4)">${maxChannel.split(' ')[0]}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderAll() {
+  renderFbar();
+  if (cur === 0) renderP0();
+  if (cur === 1) renderP1();
+  if (cur === 2) renderP2();
+  if (cur === 3) renderP3();
+}
+
+renderNav();
+showPage();
+renderAll();
+
+// Update "last upd" every minute
+setInterval(() => {
+  const d = new Date();
+  document.getElementById("last-upd").textContent =
+    d.toLocaleString("ru-RU", {day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+}, 60000);
+</script>
+</body>
+</html>
